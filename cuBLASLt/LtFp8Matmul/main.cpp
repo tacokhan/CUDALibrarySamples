@@ -36,7 +36,8 @@
 #include "helpers.h"
 
 int main() {
-    TestBench<__nv_fp8_e4m3, __nv_fp8_e4m3, float> props(64, 128, 256, 2.0f, 0.0f /* ignored */, 32ULL * 1024 * 1024);
+    //Expected Tflop/s for M=N=K=12288: 350, 8192:310, 16384+:220. Inspect ptx/SASS to see why.
+    TestBench<__nv_fp8_e4m3, __nv_fp8_e4m3, float> props(12288, 12288, 12288, 2.0f, 0.0f /* ignored */, 32ULL * 1024 * 1024);
 
     props.run([&props] {
         LtFp8Matmul(props.ltHandle,
