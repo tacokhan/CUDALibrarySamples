@@ -27,7 +27,10 @@
  */
 
 #include <cublasLt.h>
-
+// hello insert after
+#include <iostream>
+#include <cuda_runtime.h>
+//before
 #include "helpers.h"
 #include "sample_cublasLt_LtFp8Matmul.h"
 
@@ -99,23 +102,53 @@ void LtFp8Matmul(cublasLtHandle_t ltHandle,
     if (returnedResults == 0) {
         checkCublasStatus(CUBLAS_STATUS_NOT_SUPPORTED);
     }
+    //------
+    int iterations = 1000;
+    std::cout << iterations << " iterations" << std::endl;
+    std::cout << "No warmup..." << std::endl;
+    
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
+    //------
+    for (int i = 0; i < iterations; i++) {
+        cublasLtMatmul(ltHandle,
+            operationDesc,
+            alpha,
+            A,
+            Adesc,
+            B,
+            Bdesc,
+            &beta,
+            nullptr,
+            Cdesc,
+            D,
+            Ddesc,
+            &heuristicResult.algo,
+            workspace,
+            workspaceSize,
+            0);
+    }
+    
+    
+    
+    //------
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
 
-    checkCublasStatus(cublasLtMatmul(ltHandle,
-                                     operationDesc,
-                                     alpha,
-                                     A,
-                                     Adesc,
-                                     B,
-                                     Bdesc,
-                                     &beta,
-                                     nullptr,
-                                     Cdesc,
-                                     D,
-                                     Ddesc,
-                                     &heuristicResult.algo,
-                                     workspace,
-                                     workspaceSize,
-                                     0));
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    std::cout << "Time for cublasLtMatmul: " << milliseconds << " ms" << std::endl;
+
+    long double calcflops = 2.0 * m * n * k;
+    long double Flops = calcflops / (milliseconds / 1000.0);
+    std::cout << "Flop/s: " << Flops * iterations << std::endl;
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+    
+    //------
 
     // descriptors are no longer needed as all GPU work was already enqueued
     if (preference) checkCublasStatus(cublasLtMatmulPreferenceDestroy(preference));
