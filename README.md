@@ -1,4 +1,4 @@
-slightly edited the fp8matmul example for Ada lovelace RTX 4090 fp8 e4m3 dense matmul Flop/s benchmarking. Achieves 350 TFlop/s w/out overclocking, half rate of 660 TFlops advertised.
+slightly edited the fp8matmul example for Ada lovelace RTX 4090 fp8 e4m3 dense matmul Flop/s benchmarking. Achieves 350 TFlop/s w/out overclocking, matches spec of 330 Tflops fp8 w/ fp32 accumulate on updated whitepaper(2.02), original one (2.01) incorrectly put 660.
 # CUDA Library Samples
 
 CUDA Library Samples contains examples demonstrating the use of
